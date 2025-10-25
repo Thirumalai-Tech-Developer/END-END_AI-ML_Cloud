@@ -22,7 +22,9 @@ def upload_file():
 
     return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
 
-# @app.route('/preprocess', methods=['POST'])
+@app.route('/train', methods=['GET'])
+def trainer():
+    return jsonify({'message': 'Training Completed'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
