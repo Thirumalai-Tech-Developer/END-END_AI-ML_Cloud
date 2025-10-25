@@ -1,1 +1,3 @@
 /frontend/node_modules
+/.venv
+/ai_engine/data/*
