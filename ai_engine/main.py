@@ -22,5 +22,7 @@ def upload_file():
 
     return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
 
+# @app.route('/preprocess', methods=['POST'])
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
