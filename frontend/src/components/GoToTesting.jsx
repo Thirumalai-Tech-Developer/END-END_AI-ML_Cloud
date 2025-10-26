@@ -11,10 +11,18 @@ const GoToTesting = () => {
   const [graphButtonClicked, setGraphButtonClicked] = useState(false);
   const [showGraphs, setShowGraphs] = useState(false);
   const [disapper, setDisapper] = useState(true);
+  const [train, setTrain] = useState(false);
+
 
   const handleGraph = () => {
     setShowGraphs(true);
     setDisapper(false);
+    setTrain(true);
+  }
+
+  const reverseGraph = () => {
+    setShowGraphs(false);
+    setDisapper(true);
   }
 
   // train animation
@@ -52,25 +60,26 @@ const GoToTesting = () => {
       const res = await fetch("http://localhost:5000/train");
       const data = await res.json();
       setTrainResult(data.message || "✅ Training completed!");
-      setGraphButtonClicked(true);
     } catch (err) {
       setTrainResult("❌ Error: " + err.message);
+    } finally {
+      setGraphButtonClicked(true);
     }
     setLoadingTrain(false);
   };
 
-  const handleTest = async () => {
-    setLoadingTest(true);
-    setTestResult("Testing in progress");
-    try {
-      const res = await fetch("http://localhost:5000/test");
-      const data = await res.json();
-      setTestResult(data.message || "✅ Testing completed!");
-    } catch (err) {
-      setTestResult("❌ Error: " + err.message);
-    }
-    setLoadingTest(false);
-  };
+  // const handleTest = async () => {
+  //   setLoadingTest(true);
+  //   setTestResult("Testing in progress");
+  //   try {
+  //     const res = await fetch("http://localhost:5000/test");
+  //     const data = await res.json();
+  //     setTestResult(data.message || "✅ Testing completed!");
+  //   } catch (err) {
+  //     setTestResult("❌ Error: " + err.message);
+  //   }
+  //   setLoadingTest(false);
+  // };
 
   const animatedDots = (count) => ".".repeat(count);
 
@@ -78,11 +87,11 @@ const GoToTesting = () => {
     <section className="py-5 flex flex-col items-center justify-center gap-4">
       {disapper && (
         <div>
-        <h1 className="text-2xl font-semibold text-orange-500">
+        <h1 className="text-2xl flex justify-center font-semibold text-orange-500">
           AI/ML Model Trainer
         </h1>
 
-        <div className="flex gap-3">
+        <div className="flex justify-center my-5 gap-3">
           <button
             onClick={handleTrain}
             disabled={loadingTrain}
@@ -135,6 +144,14 @@ const GoToTesting = () => {
         )}
       </div>
     )}
+    {train && (<div className="flex justify-center mt-6">
+        <button
+            onClick={reverseGraph}
+            className="px-4 py-2 rounded-lg shadow text-white bg-blue-500 hover:bg-blue-600 transition"
+          >
+            back to Training
+          </button>
+      </div>)}
     {showGraphs && <GraphShow />}
     </section>
   );

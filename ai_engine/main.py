@@ -1,9 +1,9 @@
 import os
+import shutil
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from utils.model import *
 from utils.PreProcess import *
-from utils.remover import remove_file_if_exists
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 STORE_DATA = 'data'
-GRAPH_DIR = os.path.join(STORE_DATA, 'graphs')
+GRAPH_PATH = 'graphs'
 IS_CLASSIFICTION = False
 NEED_CLEANING = True
 NEED_SCALING = True
@@ -33,12 +33,16 @@ def upload_file():
     file_path = os.path.join(STORE_DATA, "dataset.csv")
     file.save(file_path)
 
-    remove_file_if_exists(GRAPH_DIR)
+    
+    if os.path.exists(GRAPH_PATH):
+        shutil.rmtree(GRAPH_PATH)
+    os.mkdir(GRAPH_PATH)
 
     return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
 
 @app.route('/data', methods=['POST'])
 def save_data():
+    
     try:
         data = request.get_json()
         global NEED_CLEANING, NEED_SKEWNESS_HANDLING, NEED_SCALING, IS_CLASSIFICTION, TARGET_COLUMN
@@ -117,7 +121,7 @@ def trainer():
         if NEED_SKEWNESS_HANDLING:
             import matplotlib.pyplot as plt
             import seaborn as sns
-            outlier_dir = GRAPH_DIR
+            outlier_dir = GRAPH_PATH
             os.makedirs(outlier_dir, exist_ok=True)
 
             numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
@@ -172,7 +176,7 @@ def get_columns():
 @app.route('/graph', methods=['GET'])
 def get_graphs():
     import os
-    folder = 'data/graphs'
+    folder = 'graphs'
     if not os.path.exists(folder):
         return jsonify({'images': []})
     images = sorted(os.listdir(folder))
@@ -181,7 +185,7 @@ def get_graphs():
 @app.route('/graph/<filename>')
 def serve_graph(filename):
     from flask import send_from_directory
-    return send_from_directory('data/graphs', filename)
+    return send_from_directory('graphs', filename)
 
 
 if __name__ == '__main__':

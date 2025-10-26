@@ -8,6 +8,7 @@ const PreProcess = () => {
     scalingDone: false,
     classification: false,
   })
+  
   const [columns, setColumns] = useState([])
   const [targetColumn, setTargetColumn] = useState('')
   const [loadingCols, setLoadingCols] = useState(false)

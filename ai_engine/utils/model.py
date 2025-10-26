@@ -11,7 +11,7 @@ from sklearn.ensemble import (
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.svm import SVC, SVR
 
-os.makedirs("data/graphs", exist_ok=True)
+os.makedirs("graphs", exist_ok=True)
 
 def train_best_classification_model(X_train, X_test, y_train, y_test):
     models = {
@@ -59,7 +59,7 @@ def train_best_classification_model(X_train, X_test, y_train, y_test):
         plt.ylabel("Accuracy")
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(f"data/graphs/{name}_performance.jpg")
+        plt.savefig(f"graphs/{name}_performance.jpg")
         plt.close()
 
         if acc > best_acc:
@@ -72,7 +72,7 @@ def train_best_classification_model(X_train, X_test, y_train, y_test):
     plt.ylabel("Accuracy")
     plt.xlabel("Models")
     plt.tight_layout()
-    plt.savefig("data/graphs/Classification_Comparison.jpg")
+    plt.savefig("graphs/Classification_Comparison.jpg")
     plt.close()
 
     with open("best_classification_model.pkl", "wb") as f:
@@ -122,7 +122,7 @@ def train_best_regression_model(X_train, X_test, y_train, y_test):
             plt.ylabel("R² Score")
             plt.grid(True)
             plt.tight_layout()
-            plt.savefig(f"data/graphs/{name}_performance.jpg")
+            plt.savefig(f"graphs/{name}_performance.jpg")
             plt.close()
 
             estimator = grid.best_estimator_
@@ -145,7 +145,7 @@ def train_best_regression_model(X_train, X_test, y_train, y_test):
     plt.ylabel("R² Score")
     plt.xlabel("Models")
     plt.tight_layout()
-    plt.savefig("data/graphs/Regression_Comparison.jpg")
+    plt.savefig("graphs/Regression_Comparison.jpg")
     plt.close()
 
     with open("best_regression_model.pkl", "wb") as f:

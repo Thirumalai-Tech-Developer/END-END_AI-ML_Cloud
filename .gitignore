@@ -1,6 +1,7 @@
 /frontend/node_modules
 /.venv
 /ai_engine/data/*
+/ai_engine/graphs
 /ai_engine/best_classification_model.pkl
 /ai_engine/best_regression_model.pkl
 /ai_engine/__pycache__/
