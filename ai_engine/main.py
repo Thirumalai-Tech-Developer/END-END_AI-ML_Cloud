@@ -1,6 +1,6 @@
 import os
 import shutil
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from utils.model import *
 from utils.PreProcess import *
@@ -42,7 +42,7 @@ def upload_file():
 
 @app.route('/data', methods=['POST'])
 def save_data():
-    
+
     try:
         data = request.get_json()
         global NEED_CLEANING, NEED_SKEWNESS_HANDLING, NEED_SCALING, IS_CLASSIFICTION, TARGET_COLUMN
@@ -70,6 +70,12 @@ def trainer():
             return jsonify({'error': 'No dataset found. Please upload first.'}), 400
         
         file_path = os.path.join(STORE_DATA, files[0])
+
+        # model check
+        if os.path.exists("best_classification_model.pkl"):
+            os.remove("best_classification_model.pkl")
+        if os.path.exists("best_regression_model.pkl"):
+            os.remove("best_regression_model.pkl")
 
         # load file
         if file_path.endswith('.csv'):
@@ -187,6 +193,12 @@ def serve_graph(filename):
     from flask import send_from_directory
     return send_from_directory('graphs', filename)
 
+@app.route('/best_model', methods=['GET'])
+def download_model():
+    model_path = './best_regression_model.pkl' if os.path.exists('./best_regression_model.pkl') else './best_classification_model.pkl'
+    if not os.path.exists(model_path):
+        return jsonify({'error': 'No model found'}), 404
+    return send_file(model_path, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

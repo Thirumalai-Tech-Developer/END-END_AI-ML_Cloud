@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import GraphShow from "./GraphShow";
+import DownloadModel from "./DownloadModel";
 
 const GoToTesting = () => {
   const [trainResult, setTrainResult] = useState("");
@@ -152,7 +153,8 @@ const GoToTesting = () => {
             back to Training
           </button>
       </div>)}
-    {showGraphs && <GraphShow />}
+      {showGraphs && <GraphShow />}
+      {showGraphs && <DownloadModel />}
     </section>
   );
 };
