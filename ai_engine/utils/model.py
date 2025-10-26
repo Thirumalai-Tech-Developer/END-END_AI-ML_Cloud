@@ -1,53 +1,33 @@
 import pickle
 import pandas as pd
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, r2_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.svm import SVC, SVR
-from sklearn.utils.multiclass import type_of_target
-
-def identify_problem_type(df):
-    target_col = df.columns[-1]
-    y = df[target_col]
-    target_type = type_of_target(y)
-    
-    if target_type in ["binary", "multiclass"]:
-        problem_type = "classification"
-    elif target_type in ["continuous", "continuous-multioutput"]:
-        problem_type = "regression"
-    else:
-        unique_vals = y.nunique()
-        if y.dtype == 'object' or unique_vals < 10:
-            problem_type = "classification"
-        else:
-            problem_type = "regression"
-
-    return target_col, problem_type
-
 
 def train_best_classification_model(X_train, X_test, y_train, y_test):
 
     models = {
         "RandomForest": (RandomForestClassifier(), {
-            # "n_estimators": [50, 100, 200],
-            # "max_depth": [None, 5, 10],
-            # "min_samples_split": [2, 5]
+            "n_estimators": [50, 100, 200],
+            "max_depth": [None, 5, 10],
+            "min_samples_split": [2, 5]
         }),
         "GradientBoosting": (GradientBoostingClassifier(), {
-            # "n_estimators": [50, 100],
-            # "learning_rate": [0.01, 0.1],
-            # "max_depth": [3, 5]
+            "n_estimators": [50, 100],
+            "learning_rate": [0.01, 0.1],
+            "max_depth": [3, 5]
         }),
         "SVM": (SVC(), {
-            # "C": [0.1, 1, 10],
-            # "kernel": ["linear", "rbf"],
-            # "gamma": ["scale", "auto"]
+            "C": [0.1, 1, 10],
+            "kernel": ["linear", "rbf"],
+            "gamma": ["scale", "auto"]
         }),
         "LogisticRegression": (LogisticRegression(max_iter=1000), {
-            # "C": [0.01, 0.1, 1, 10],
-            # "penalty": ["l2"],
-            # "solver": ["lbfgs"]
+            "C": [0.01, 0.1, 1, 10],
+            "penalty": ["l2"],
+            "solver": ["lbfgs"]
         })
     }
 

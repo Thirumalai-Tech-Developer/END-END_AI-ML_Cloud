@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GoToTesting from './GoToTesting';
+import PreProcess from './PreProcess';
 
 const UploadFiles = () => {
   const [file, setFile] = useState(null);
@@ -82,7 +83,7 @@ const UploadFiles = () => {
           {/* Show GoToTesting only after successful upload */}
           {uploaded && (
             <div className="mt-5">
-              <GoToTesting />
+              <PreProcess />
             </div>
           )}
         </div>

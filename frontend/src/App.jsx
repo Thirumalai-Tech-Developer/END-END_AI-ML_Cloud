@@ -1,5 +1,4 @@
 import InterFace from './Pages/InterFace';
-import UploadFiles from './components/UploadFiles';
 import './App.css';
 import { Routes, Route } from "react-router-dom";
 import GoToTesting from './components/GoToTesting';
@@ -12,7 +11,6 @@ function App() {
         <section className="grid md:grid-cols-2 gap-8 items-center">
           <Routes>
             <Route path="/" element={<InterFace />} />
-            <Route path="/test" element={<GoToTesting />} />
           </Routes>
         </section>
       </main>
