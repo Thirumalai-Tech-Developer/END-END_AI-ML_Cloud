@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import GraphShow from "./GraphShow";
 
 const GoToTesting = () => {
   const [trainResult, setTrainResult] = useState("");
@@ -7,8 +8,16 @@ const GoToTesting = () => {
   const [loadingTest, setLoadingTest] = useState(false);
   const [trainDots, setTrainDots] = useState(0);
   const [testDots, setTestDots] = useState(0);
+  const [graphButtonClicked, setGraphButtonClicked] = useState(false);
+  const [showGraphs, setShowGraphs] = useState(false);
+  const [disapper, setDisapper] = useState(true);
 
-  // --- train animation dots ---
+  const handleGraph = () => {
+    setShowGraphs(true);
+    setDisapper(false);
+  }
+
+  // train animation
   useEffect(() => {
     let interval;
     if (loadingTrain) {
@@ -22,7 +31,7 @@ const GoToTesting = () => {
     return () => clearInterval(interval);
   }, [loadingTrain]);
 
-  // --- test animation dots ---
+  // test animation
   useEffect(() => {
     let interval;
     if (loadingTest) {
@@ -43,6 +52,7 @@ const GoToTesting = () => {
       const res = await fetch("http://localhost:5000/train");
       const data = await res.json();
       setTrainResult(data.message || "✅ Training completed!");
+      setGraphButtonClicked(true);
     } catch (err) {
       setTrainResult("❌ Error: " + err.message);
     }
@@ -66,69 +76,66 @@ const GoToTesting = () => {
 
   return (
     <section className="py-5 flex flex-col items-center justify-center gap-4">
-      <h1 className="text-2xl font-semibold text-orange-500">
-        AI/ML Model Trainer
-      </h1>
+      {disapper && (
+        <div>
+        <h1 className="text-2xl font-semibold text-orange-500">
+          AI/ML Model Trainer
+        </h1>
 
-      <div className="flex gap-3">
-        <button
-          onClick={handleTrain}
-          disabled={loadingTrain}
-          className={`px-4 py-2 rounded-lg shadow text-white transition ${
-            loadingTrain
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600"
-          }`}
-        >
-          {loadingTrain ? "Training..." : "Train Model"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleTrain}
+            disabled={loadingTrain}
+            className={`px-4 py-2 rounded-lg shadow text-white transition ${
+              loadingTrain
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-600"
+            }`}
+          >
+            {loadingTrain ? "Training..." : "Train Model"}
+          </button>
+          {graphButtonClicked && (<button
+            onClick={handleGraph}
+            className="px-4 py-2 rounded-lg shadow text-white bg-blue-500 hover:bg-blue-600 transition"
+          >
+            View Graphs
+          </button>)}
+        </div>
 
-        {/* <button
-          onClick={handleTest}
-          disabled={loadingTest}
-          className={`px-4 py-2 rounded-lg shadow text-white transition ${
-            loadingTest
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-        >
-          {loadingTest ? "Testing..." : "Test Model"}
-        </button> */}
+        {trainResult && (
+          <p
+            className={`mt-3 text-lg font-medium ${
+              trainResult.includes("progress")
+                ? "text-yellow-400"
+                : trainResult.includes("Error")
+                ? "text-red-500"
+                : "text-green-500"
+            }`}
+          >
+            {trainResult.includes("progress")
+              ? `Training in progress${animatedDots(trainDots)}`
+              : trainResult}
+          </p>
+        )}
+
+        {testResult && (
+          <p
+            className={`mt-2 text-lg font-medium ${
+              testResult.includes("progress")
+                ? "text-yellow-400"
+                : testResult.includes("Error")
+                ? "text-red-500"
+                : "text-green-500"
+            }`}
+          >
+            {testResult.includes("progress")
+              ? `Testing in progress${animatedDots(testDots)}`
+              : testResult}
+          </p>
+        )}
       </div>
-
-      {/* animated training message */}
-      {trainResult && (
-        <p
-          className={`mt-3 text-lg font-medium ${
-            trainResult.includes("progress")
-              ? "text-yellow-400"
-              : trainResult.includes("Error")
-              ? "text-red-500"
-              : "text-green-500"
-          }`}
-        >
-          {trainResult.includes("progress")
-            ? `Training in progress${animatedDots(trainDots)}`
-            : trainResult}
-        </p>
-      )}
-
-      {/* animated testing message */}
-      {testResult && (
-        <p
-          className={`mt-2 text-lg font-medium ${
-            testResult.includes("progress")
-              ? "text-yellow-400"
-              : testResult.includes("Error")
-              ? "text-red-500"
-              : "text-green-500"
-          }`}
-        >
-          {testResult.includes("progress")
-            ? `Testing in progress${animatedDots(testDots)}`
-            : testResult}
-        </p>
-      )}
+    )}
+    {showGraphs && <GraphShow />}
     </section>
   );
 };

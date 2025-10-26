@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from utils.model import *
 from utils.PreProcess import *
+from utils.remover import remove_file_if_exists
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -12,6 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 STORE_DATA = 'data'
+GRAPH_DIR = os.path.join(STORE_DATA, 'graphs')
 IS_CLASSIFICTION = False
 NEED_CLEANING = True
 NEED_SCALING = True
@@ -27,9 +29,11 @@ def upload_file():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    
+
     file_path = os.path.join(STORE_DATA, "dataset.csv")
     file.save(file_path)
+
+    remove_file_if_exists(GRAPH_DIR)
 
     return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
 
@@ -113,7 +117,7 @@ def trainer():
         if NEED_SKEWNESS_HANDLING:
             import matplotlib.pyplot as plt
             import seaborn as sns
-            outlier_dir = os.path.join(STORE_DATA, "outlier")
+            outlier_dir = GRAPH_DIR
             os.makedirs(outlier_dir, exist_ok=True)
 
             numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
@@ -157,13 +161,27 @@ def trainer():
 
 @app.route('/columns', methods=['GET'])
 def get_columns():
-    import pandas as pd, os
+
     files = os.listdir(STORE_DATA)
     if not files:
         return jsonify({'error': 'No dataset found'}), 400
     path = os.path.join(STORE_DATA, files[0])
     df = pd.read_csv(path)
     return jsonify({'columns': df.columns.tolist()}), 200
+
+@app.route('/graph', methods=['GET'])
+def get_graphs():
+    import os
+    folder = 'data/graphs'
+    if not os.path.exists(folder):
+        return jsonify({'images': []})
+    images = sorted(os.listdir(folder))
+    return jsonify({'images': images})
+
+@app.route('/graph/<filename>')
+def serve_graph(filename):
+    from flask import send_from_directory
+    return send_from_directory('data/graphs', filename)
 
 
 if __name__ == '__main__':
