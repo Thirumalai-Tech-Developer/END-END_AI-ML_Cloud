@@ -63,7 +63,7 @@ def train_best_classification_model(X_train, X_test, y_train, y_test):
         plt.close()
 
         if acc > best_acc:
-            best_model, best_acc = grid.best_estimator_, acc
+            best_model, best_acc, best_name = grid.best_estimator_, acc, name
 
     # --- combined comparison plot ---
     plt.figure(figsize=(8, 5))
@@ -78,7 +78,7 @@ def train_best_classification_model(X_train, X_test, y_train, y_test):
     with open("best_classification_model.pkl", "wb") as f:
         pickle.dump(best_model, f)
 
-    return f"\n✅ Best Classification Model saved with Accuracy: {best_acc:.4f}"
+    return f"\n✅ Best Classification Model saved with Accuracy: {best_acc:.4f}", best_name
 
 
 def train_best_regression_model(X_train, X_test, y_train, y_test):
@@ -136,7 +136,7 @@ def train_best_regression_model(X_train, X_test, y_train, y_test):
         print(f"{name} R² Score: {score:.4f}")
 
         if score > best_score:
-            best_model, best_score = estimator, score
+            best_model, best_score, best_name = estimator, score, name
 
     # combined comparison
     plt.figure(figsize=(8, 5))
@@ -151,4 +151,4 @@ def train_best_regression_model(X_train, X_test, y_train, y_test):
     with open("best_regression_model.pkl", "wb") as f:
         pickle.dump(best_model, f)
 
-    return f"\n✅ Best Regression Model saved with R² Score: {best_score:.4f}"
+    return f"\n✅ Best Regression Model saved with R² Score: {best_score:.4f}", best_name

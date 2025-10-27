@@ -16,14 +16,15 @@ const GoToTesting = () => {
 
 
   const handleGraph = () => {
-    setShowGraphs(true);
-    setDisapper(false);
-    setTrain(true);
-  }
-
-  const reverseGraph = () => {
-    setShowGraphs(false);
-    setDisapper(true);
+    if (train) {
+      setShowGraphs(false);
+      setDisapper(true);
+      setTrain(false);
+    } else {
+      setShowGraphs(true);
+      setDisapper(false);
+      setTrain(true);
+    }
   }
 
   // train animation
@@ -60,14 +61,14 @@ const GoToTesting = () => {
     try {
       const res = await fetch("http://localhost:5000/train");
       const data = await res.json();
-      setTrainResult(data.message || "✅ Training completed!");
+      setTrainResult(data.message + " and the model name " + data.model || "✅ Training completed!");
     } catch (err) {
       setTrainResult("❌ Error: " + err.message);
     } finally {
       setGraphButtonClicked(true);
     }
     setLoadingTrain(false);
-  };
+  }
 
   // const handleTest = async () => {
   //   setLoadingTest(true);
@@ -82,12 +83,12 @@ const GoToTesting = () => {
   //   setLoadingTest(false);
   // };
 
-  const animatedDots = (count) => ".".repeat(count);
+  const animatedDots = (count) => ".".repeat(count)
 
   return (
     <section className="py-5 flex flex-col items-center justify-center gap-4">
       {disapper && (
-        <div>
+      <div>
         <h1 className="text-2xl flex justify-center font-semibold text-orange-500">
           AI/ML Model Trainer
         </h1>
@@ -147,16 +148,16 @@ const GoToTesting = () => {
     )}
     {train && (<div className="flex justify-center mt-6">
         <button
-            onClick={reverseGraph}
+            onClick={handleGraph}
             className="px-4 py-2 rounded-lg shadow text-white bg-blue-500 hover:bg-blue-600 transition"
           >
             back to Training
           </button>
       </div>)}
       {showGraphs && <GraphShow />}
-      {showGraphs && <DownloadModel />}
+      {graphButtonClicked && <DownloadModel />}
     </section>
-  );
-};
+  )
+}
 
 export default GoToTesting;

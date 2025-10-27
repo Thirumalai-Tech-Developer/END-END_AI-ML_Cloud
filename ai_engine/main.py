@@ -125,7 +125,9 @@ def trainer():
 
         # ---------------- SKEWNESS & OUTLIERS ----------------
         if NEED_SKEWNESS_HANDLING:
+            import matplotlib
             import matplotlib.pyplot as plt
+            matplotlib.use("Agg")
             import seaborn as sns
             outlier_dir = GRAPH_PATH
             os.makedirs(outlier_dir, exist_ok=True)
@@ -154,16 +156,16 @@ def trainer():
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         if target_model == 'classification':
-            message = train_best_classification_model(X_train, X_test, y_train, y_test)
+            message, name = train_best_classification_model(X_train, X_test, y_train, y_test)
             model_name = 'best_classification_model.pkl'
         else:
-            message = train_best_regression_model(X_train, X_test, y_train, y_test)
+            message, name = train_best_regression_model(X_train, X_test, y_train, y_test)
             model_name = 'best_regression_model.pkl'
 
         # ---------------- RETURN ----------------
         return jsonify({
             'message': message,
-            'model': model_name,
+            'model': name,
         }), 200
 
     except Exception as e:

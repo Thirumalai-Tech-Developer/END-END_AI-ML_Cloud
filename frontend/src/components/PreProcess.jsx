@@ -124,7 +124,7 @@ const PreProcess = () => {
         <pre className="text-sm mt-4 bg-gray-800 p-3 rounded-lg">
           {JSON.stringify({ ...options, targetColumn }, null, 2)}
         </pre>
-      </div> )};
+      </div> )}
       {uploaded && <GoToTesting />}
     </div>
   )

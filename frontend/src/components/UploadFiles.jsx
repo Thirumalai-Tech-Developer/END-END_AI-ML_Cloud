@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import GoToTesting from './GoToTesting';
 import PreProcess from './PreProcess';
 
 const UploadFiles = () => {
@@ -15,6 +14,17 @@ const UploadFiles = () => {
 
   const handleUpload = () => {
     if (!file) return alert('Please select a file first.');
+
+    const allowedExtensions = ['csv', 'xls', 'xlsx'];
+    const fileExt = file.name.split('.').pop().toLowerCase();
+
+    if (!allowedExtensions.includes(fileExt)) {
+      setMessage(
+        '⚙️ Non-tabular file detected. Reserved for Deep Learning, LLM or RAG.'
+      );
+      setUploaded(false);
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', file);
