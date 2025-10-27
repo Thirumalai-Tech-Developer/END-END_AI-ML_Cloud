@@ -1,7 +1,7 @@
 import InterFace from './Pages/InterFace';
 import './App.css';
 import { Routes, Route } from "react-router-dom";
-import GoToTesting from './components/GoToTesting';
+import RagModel from './components/RagModel';
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
         <section className="w-full">
           <Routes>
             <Route path="/" element={<InterFace />} />
-            <Route path="/testing" element={<GoToTesting />} />
+            <Route path="/rag_chat" element={<RagModel />} />
           </Routes>
         </section>
       </main>

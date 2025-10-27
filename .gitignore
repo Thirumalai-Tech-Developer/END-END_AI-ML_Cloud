@@ -6,3 +6,4 @@
 /ai_engine/best_regression_model.pkl
 /ai_engine/__pycache__/
 /ai_engine/utils/__pycache__/
+/ai_engine/utils/.env

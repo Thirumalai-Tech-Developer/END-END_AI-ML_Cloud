@@ -59,7 +59,7 @@ const GoToTesting = () => {
     setLoadingTrain(true);
     setTrainResult("Training in progress");
     try {
-      const res = await fetch("http://localhost:5000/train");
+      const res = await fetch("http://localhost:5000/train_ml");
       const data = await res.json();
       setTrainResult(data.message + " and the model name " + data.model || "✅ Training completed!");
     } catch (err) {

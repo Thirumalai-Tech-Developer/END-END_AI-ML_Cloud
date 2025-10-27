@@ -1,54 +1,61 @@
 import { useState } from 'react';
 import PreProcess from './PreProcess';
+import RagModel from './RagModel';
 
 const UploadFiles = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
-  const [uploaded, setUploaded] = useState(false); // show GoToTesting after upload success
+  const [uploaded, setUploaded] = useState(false);
+  const [mode, setMode] = useState(''); // 'rag' or 'preprocess'
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setMessage('');
     setUploaded(false);
+    setMode('');
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!file) return alert('Please select a file first.');
 
     const allowedExtensions = ['csv', 'xls', 'xlsx'];
     const fileExt = file.name.split('.').pop().toLowerCase();
 
+    // Handle RAG (non-tabular) files
     if (!allowedExtensions.includes(fileExt)) {
-      setMessage(
-        '⚙️ Non-tabular file detected. Reserved for Deep Learning, LLM or RAG.'
-      );
-      setUploaded(false);
+      setMode('rag');
+      setUploaded(true);
+      setMessage('⚙️ Non-tabular file detected. Using RAG model.');
       return;
     }
 
+    // Otherwise handle normal upload
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch('http://localhost:5000/upload', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((res) => {
-        if (res.status === 200) {
-          setMessage('✅ Uploaded successfully!');
-          setUploaded(true);
-        } else {
-          setMessage('❌ Upload failed, try again.');
-          setUploaded(false);
-        }
-        return res.json();
-      })
-      .then((data) => console.log(data))
-      .catch((err) => {
-        console.error(err);
-        setMessage('⚠️ Error during upload.');
-        setUploaded(false);
+    try {
+      const res = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
       });
+
+      if (res.status === 200) {
+        setMessage('✅ Uploaded successfully!');
+        setUploaded(true);
+        setMode('preprocess');
+      } else {
+        setMessage('❌ Upload failed, try again.');
+        setUploaded(false);
+        setMode('');
+      }
+
+      await res.json();
+    } catch (err) {
+      console.error(err);
+      setMessage('⚠️ Error during upload.');
+      setUploaded(false);
+      setMode('');
+    }
   };
 
   return (
@@ -90,10 +97,15 @@ const UploadFiles = () => {
             </>
           )}
 
-          {/* Show GoToTesting only after successful upload */}
-          {uploaded && (
+          {uploaded && mode === 'preprocess' && (
             <div className="mt-5">
               <PreProcess />
+            </div>
+          )}
+
+          {uploaded && mode === 'rag' && (
+            <div className="mt-5">
+              <RagModel />
             </div>
           )}
         </div>

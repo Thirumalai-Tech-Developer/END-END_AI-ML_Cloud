@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from utils.model import *
 from utils.PreProcess import *
+from utils.rag import RAGProcessor
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -12,6 +13,7 @@ import numpy as np
 app = Flask(__name__)
 CORS(app)
 
+rg = RAGProcessor()
 STORE_DATA = 'data'
 GRAPH_PATH = 'graphs'
 IS_CLASSIFICTION = False
@@ -30,9 +32,10 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    file_path = os.path.join(STORE_DATA, "dataset.csv")
+    filename = file.filename
+    ext = os.path.splitext(filename)[1]  # get extension like .csv, .xlsx, etc.
+    file_path = os.path.join(STORE_DATA, f"dataset{ext}")
     file.save(file_path)
-
     
     if os.path.exists(GRAPH_PATH):
         shutil.rmtree(GRAPH_PATH)
@@ -57,7 +60,7 @@ def save_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/train', methods=['GET', 'POST'])
+@app.route('/train_ml', methods=['GET', 'POST'])
 def trainer():
     try:
         import warnings
@@ -170,6 +173,30 @@ def trainer():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/rag_chat', methods=['GET', 'POST'])
+def rag():
+    try:
+        data = request.get_json()
+        query = data.get('query', '')
+        if not query:
+            return jsonify({'error': 'No query provided'}), 400
+
+        files = os.listdir(STORE_DATA)
+        if not files:
+            return jsonify({'error': 'No document found. Please upload first.'}), 400
+        
+        file_path = os.path.join(STORE_DATA, files[0])
+        documents = rg.load_document(file_path)
+        vectorstore = rg.create_vector_store(documents)
+
+        answer = rg.generate_answer(vectorstore, query)
+
+        return jsonify({'answer': answer}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 
 @app.route('/columns', methods=['GET'])
 def get_columns():

@@ -12,8 +12,7 @@ const GraphShow = () => {
         setGraphs(data.images || []); // assuming Flask returns { images: [...] }
       } catch (err) {
         console.error("Error fetching graphs:", err);
-      } finally {
-        setLoading(false);
+      } finally {        setLoading(false);
       }
     };
     fetchGraphs();
