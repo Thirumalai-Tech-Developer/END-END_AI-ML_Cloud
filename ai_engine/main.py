@@ -5,6 +5,7 @@ from flask_cors import CORS
 from utils.model import *
 from utils.PreProcess import *
 from utils.rag import RAGProcessor
+from utils.llm import LocalLM, GeminiLLM
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -20,8 +21,22 @@ IS_CLASSIFICTION = False
 NEED_CLEANING = True
 NEED_SCALING = True
 NEED_SKEWNESS_HANDLING = True
+IS_LOCAL_LLM = False
 TARGET_COLUMN = ''
+message = []
+
 os.mkdir(STORE_DATA) if not os.path.exists(STORE_DATA) else None
+
+@app.route('/local_api', methods=['POST'])
+def local_api():
+    global IS_LOCAL_LLM
+    data = request.get_json()
+    query = data.get('query', False)
+
+    IS_LOCAL_LLM = bool(query)
+    print(f"🔁 Local LLM switched to: {IS_LOCAL_LLM}")
+
+    return jsonify({"status": "ok", "is_local": IS_LOCAL_LLM}), 200
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -197,6 +212,44 @@ def rag():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+@app.route('/llm_chat', methods=['POST'])
+def llm_chat():
+    global message
+    if IS_LOCAL_LLM:
+        llm = LocalLM()
+    else:
+        llm = GeminiLLM()
+
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        print(f"💬 Received query: {query}")
+
+        if not query:
+            return jsonify({'error': 'No query provided'}), 400
+
+        # Initialize chat history if missing
+        if 'message' not in globals():
+            message = []
+
+        # Generate response
+        if len(message) == 0:
+            response = llm.generate_response(query)
+            print(f"🤖 Generated response: {response}")
+        else:
+            response = llm.chat(message + [{"role": "user", "content": query}])
+
+        # Maintain short chat memory
+        message.append({"role": "user", "content": query})
+        message.append({"role": "assistant", "content": str(response)})
+
+        return jsonify({'response': str(response)}), 200
+
+    except Exception as e:
+        import traceback
+        print("🔥 LLM_CHAT ERROR TRACEBACK 🔥")
+        traceback.print_exc()  # this prints the full error
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/columns', methods=['GET'])
 def get_columns():

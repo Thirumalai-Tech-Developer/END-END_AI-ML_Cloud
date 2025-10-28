@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import PreProcess from './PreProcess';
 import RagModel from './RagModel';
+import LlmModels from './LlmModels';
 
 const UploadFiles = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
   const [uploaded, setUploaded] = useState(false);
   const [mode, setMode] = useState(''); // 'rag' or 'preprocess'
+  const [llm, setLlm] = useState(false);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -14,6 +16,13 @@ const UploadFiles = () => {
     setUploaded(false);
     setMode('');
   };
+
+  const handleclick = () => {
+    setMode('llm');
+    setLlm(true);
+    setUploaded(true);
+
+  }
 
   const handleUpload = async () => {
     if (!file) return alert('Please select a file first.');
@@ -64,7 +73,13 @@ const UploadFiles = () => {
         <div>
           {!uploaded && (
             <>
-              <div className="flex justify-center items-center">
+              <div className="flex justify-around items-center">
+                 <button
+                  onClick={handleclick}
+                  className="flex justify-center bg-pink-600 hover:bg-pink-700 text-white px-5 py-3 rounded-full shadow"
+                >
+                  switch to LLM model
+                </button>
                 <input
                   type="file"
                   onChange={handleFileChange}
@@ -106,6 +121,12 @@ const UploadFiles = () => {
           {uploaded && mode === 'rag' && (
             <div className="mt-5">
               <RagModel />
+            </div>
+          )}
+
+          {uploaded && mode === 'llm' && (
+            <div className="mt-5">
+              <LlmModels />
             </div>
           )}
         </div>

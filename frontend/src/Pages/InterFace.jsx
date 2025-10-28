@@ -2,6 +2,8 @@ import UploadFiles from "../components/UploadFiles";
 import ShowCase from "./ShowCase";
 
 const InterFace = () => {
+
+  
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-16 bg-white rounded-2xl shadow-lg">
       <div className="max-w-6xl mx-auto text-center lg:text-left">
