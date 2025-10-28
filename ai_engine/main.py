@@ -193,7 +193,11 @@ def trainer():
 def rag():
     try:
         data = request.get_json()
+        if os.path.exists('data/dataset.csv'):
+            os.remove('data/dataset.csv')
+            print('removed')
         query = data.get('query', '')
+        print(f"💬 Received RAG query: {query}")
         if not query:
             return jsonify({'error': 'No query provided'}), 400
 
