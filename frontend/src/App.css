@@ -14,6 +14,7 @@
     --color-orange-400: oklch(75% 0.183 55.934);
     --color-orange-500: oklch(70.5% 0.213 47.604);
     --color-orange-600: oklch(64.6% 0.222 41.116);
+    --color-orange-700: oklch(55.3% 0.195 38.402);
     --color-amber-50: oklch(98.7% 0.022 95.277);
     --color-amber-100: oklch(96.2% 0.059 95.617);
     --color-amber-200: oklch(92.4% 0.12 95.746);
@@ -496,6 +497,9 @@
   .bg-orange-500 {
     background-color: var(--color-orange-500);
   }
+  .bg-orange-600 {
+    background-color: var(--color-orange-600);
+  }
   .bg-pink-600 {
     background-color: var(--color-pink-600);
   }
@@ -775,6 +779,13 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-orange-600);
+      }
+    }
+  }
+  .hover\:bg-orange-700 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-orange-700);
       }
     }
   }

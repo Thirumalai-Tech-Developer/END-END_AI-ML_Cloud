@@ -21,7 +21,6 @@ const UploadFiles = () => {
     setMode('llm');
     setLlm(true);
     setUploaded(true);
-
   }
 
   const handleUpload = async () => {
@@ -34,6 +33,7 @@ const UploadFiles = () => {
     if (!allowedExtensions.includes(fileExt)) {
       setMode('rag');
       setUploaded(true);
+      setLlm(true);
       setMessage('⚙️ Non-tabular file detected. Using RAG model.');
       return;
     }
@@ -51,6 +51,8 @@ const UploadFiles = () => {
       if (res.status === 200) {
         setMessage('✅ Uploaded successfully!');
         setUploaded(true);
+        setLlm(true);
+
         setMode('preprocess');
       } else {
         setMessage('❌ Upload failed, try again.');
@@ -67,9 +69,23 @@ const UploadFiles = () => {
     }
   };
 
+  const handleMenu = () => {
+    setUploaded(false);
+    setMode('');
+    setLlm(false);
+    setFile(null);
+    setMessage('');
+  }
+
   return (
     <section className="py-5">
       <div className="bg-linear-to-tr from-white to-amber-50 rounded-2xl p-1 shadow-lg">
+        {llm && (<button
+          onClick={handleMenu}
+          className="flex justify-center bg-orange-600 hover:bg-orange-700 text-white px-5 py-3 rounded-full shadow"
+        >
+          Back To Main
+        </button>)}
         <div>
           {!uploaded && (
             <>
