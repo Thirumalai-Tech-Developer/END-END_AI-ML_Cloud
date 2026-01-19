@@ -29,16 +29,6 @@ const UploadFiles = () => {
     const allowedExtensions = ['csv', 'xls', 'xlsx'];
     const fileExt = file.name.split('.').pop().toLowerCase();
 
-    // Handle RAG (non-tabular) files
-    if (!allowedExtensions.includes(fileExt)) {
-      setMode('rag');
-      setUploaded(true);
-      setLlm(true);
-      setMessage('⚙️ Non-tabular file detected. Using RAG model.');
-      return;
-    }
-
-    // Otherwise handle normal upload
     const formData = new FormData();
     formData.append('file', file);
 
@@ -49,11 +39,16 @@ const UploadFiles = () => {
       });
 
       if (res.status === 200) {
-        setMessage('✅ Uploaded successfully!');
+        // Handle RAG (non-tabular) files
+        if (!allowedExtensions.includes(fileExt)) {
+          setMode('rag');
+          setMessage('⚙️ Non-tabular file detected. Using RAG model.');
+        } else {
+          setMode('preprocess');
+          setMessage('✅ Uploaded successfully!');
+        }
         setUploaded(true);
         setLlm(true);
-
-        setMode('preprocess');
       } else {
         setMessage('❌ Upload failed, try again.');
         setUploaded(false);

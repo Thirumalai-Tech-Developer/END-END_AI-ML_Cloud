@@ -7,4 +7,4 @@
 /ai_engine/__pycache__/
 /ai_engine/utils/__pycache__/
 /ai_engine/utils/.env
-/ai_engine/.env
+/ai_engine/env

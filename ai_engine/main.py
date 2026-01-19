@@ -38,25 +38,41 @@ def local_api():
 
     return jsonify({"status": "ok", "is_local": IS_LOCAL_LLM}), 200
 
+@app.route('/upload', methods=['GET', 'POST'])
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part in the request'}), 400
-    
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part in the request'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
 
-    filename = file.filename
-    ext = os.path.splitext(filename)[1]  # get extension like .csv, .xlsx, etc.
-    file_path = os.path.join(STORE_DATA, f"dataset{ext}")
-    file.save(file_path)
-    
-    if os.path.exists(GRAPH_PATH):
-        shutil.rmtree(GRAPH_PATH)
-    os.mkdir(GRAPH_PATH)
+        # Ensure STORE_DATA directory exists
+        os.makedirs(STORE_DATA, exist_ok=True)
+        
+        filename = file.filename
+        ext = os.path.splitext(filename)[1]  # get extension like .csv, .xlsx, etc.
+        file_path = os.path.join(STORE_DATA, f"dataset{ext}")
+        file.save(file_path)
+        print(f"✅ File saved to: {file_path}")
+        
+        # Clean and recreate graph directory
+        if os.path.exists(GRAPH_PATH):
+            shutil.rmtree(GRAPH_PATH)
+        os.makedirs(GRAPH_PATH, exist_ok=True)
+        
+        # Clear vectorstore on new file upload
+        vectorstore_path = os.path.join(STORE_DATA, 'vectorstore')
+        if os.path.exists(vectorstore_path):
+            shutil.rmtree(vectorstore_path)
 
-    return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
+        return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
+    
+    except Exception as e:
+        print(f"❌ Upload error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/data', methods=['POST'])
 def save_data():
@@ -189,31 +205,41 @@ def trainer():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/rag_chat', methods=['GET', 'POST'])
+@app.route('/rag_chat', methods=['POST'])
 def rag():
     try:
         data = request.get_json()
-        if os.path.exists('data/dataset.csv'):
-            os.remove('data/dataset.csv')
-            print('removed')
         query = data.get('query', '')
         print(f"💬 Received RAG query: {query}")
         if not query:
             return jsonify({'error': 'No query provided'}), 400
 
         files = os.listdir(STORE_DATA)
-        if not files:
+        # Filter out 'vectorstore' directory
+        document_files = [f for f in files if f != 'vectorstore' and os.path.isfile(os.path.join(STORE_DATA, f))]
+        
+        if not document_files:
             return jsonify({'error': 'No document found. Please upload first.'}), 400
         
-        file_path = os.path.join(STORE_DATA, files[0])
+        file_path = os.path.join(STORE_DATA, document_files[0])
+        persist_dir = os.path.join(STORE_DATA, 'vectorstore')
+        os.makedirs(persist_dir, exist_ok=True)
+        
+        print(f"📄 Loading document: {file_path}")
         documents = rg.load_document(file_path)
-        vectorstore = rg.create_vector_store(documents)
+        print(f"📊 Creating vector store with {len(documents)} documents")
+        vectorstore = rg.create_vector_store(documents, persist_directory=persist_dir)
+        print(f"💾 Vector store persisted to: {persist_dir}")
 
         answer = rg.generate_answer(vectorstore, query)
+        print(f"✅ Answer generated")
 
         return jsonify({'answer': answer}), 200
     
     except Exception as e:
+        print(f"❌ RAG error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     
 @app.route('/llm_chat', methods=['POST'])
